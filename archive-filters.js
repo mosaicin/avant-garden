@@ -8,10 +8,19 @@
     const grid = panel.nextElementSibling;
     if (!grid || !grid.classList.contains('archive-grid')) return;
     const cards = [...grid.querySelectorAll('.archive-card')];
+    const label = (value) => value === 'unknown' ? 'Год не указан' : value;
+    const populate = (select, values, currentLabel) => {
+      const current = select.value;
+      const unique = [...new Set(values)].filter(Boolean).sort((a,b) => a.localeCompare(b, 'ru', {numeric:true}));
+      select.innerHTML = `<option value="all">${currentLabel}</option>` + unique.map((value) => `<option value="${value.replace(/"/g, '&quot;')}">${label(value)}</option>`).join('');
+      if (unique.includes(current)) select.value = current;
+    };
     const year = panel.querySelector('[data-filter-year]');
     const series = panel.querySelector('[data-filter-series]');
     const count = panel.querySelector('[data-filter-count]');
     const reset = panel.querySelector('[data-filter-reset]');
+    populate(year, cards.map((card) => card.dataset.year), 'Все годы');
+    populate(series, cards.map((card) => card.dataset.series), 'Все серии');
     const params = new URLSearchParams(location.search);
     if (params.has('year')) year.value = params.get('year');
     if (params.has('series')) series.value = params.get('series');
